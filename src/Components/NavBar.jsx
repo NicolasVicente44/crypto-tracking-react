@@ -1,10 +1,23 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ThemeToggler from "./ThemeToggler";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
+import { UserAuth } from "../context/AuthContext";
 
 const NavBar = () => {
   const [nav, setNav] = useState(false);
+
+  const { user, logout } = UserAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
 
   const handleNav = () => {
     setNav(!nav);
@@ -19,17 +32,25 @@ const NavBar = () => {
       <div className="hidden md:block">
         <ThemeToggler />
       </div>
-      <div className="hidden md:block">
-        <Link to="/signin" className="p-4 hover:text-accent">
-          Sign In
-        </Link>
-        <Link
-          to="/signup"
-          className="bg-button text-btnText px-5 py-2 ml-2 rounded-2xl shadow-lg hover:shadow-2xl"
-        >
-          Sign Up
-        </Link>
-      </div>
+
+      {user?.email ? (
+        <div>
+          <Link to="/account" className="p-4">Account</Link>
+          <button onClick={handleSignOut}>Sign Out</button>
+        </div>
+      ) : (
+        <div className="hidden md:block">
+          <Link to="/signin" className="p-4 hover:text-accent">
+            Sign In
+          </Link>
+          <Link
+            to="/signup"
+            className="bg-button text-btnText px-5 py-2 ml-2 rounded-2xl shadow-lg hover:shadow-2xl"
+          >
+            Sign Up
+          </Link>
+        </div>
+      )}
 
       <div onClick={handleNav} className="block md:hidden cursor-pointer z-10">
         {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
@@ -57,7 +78,7 @@ const NavBar = () => {
         <div className="flex flex-col w-full p-4">
           <Link to="/signin">
             <button className="w-full my-2 p-3 bg-primary text-primary border border-secondary rounded-2xl shadow-xl">
-              Sign In 
+              Sign In
             </button>
           </Link>
           <Link to="/signup">
